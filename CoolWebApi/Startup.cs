@@ -1,7 +1,9 @@
+using CoolWebApi.Infrastructure.Middlewares;
 using CoolWebApi.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,6 +31,8 @@ namespace CoolWebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
 
             services.AddApiVersioning(options =>
             {
@@ -100,6 +104,8 @@ namespace CoolWebApi
                         options.SwaggerEndpoint($"/api-docs/{description.GroupName}/docs.json", description.GroupName.ToUpperInvariant());
                 });
             }
+
+            app.UseApiExceptionHandling();
 
             app.UseSerilogRequestLogging();
 

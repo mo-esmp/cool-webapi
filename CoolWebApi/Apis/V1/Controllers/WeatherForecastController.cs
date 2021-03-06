@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CoolWebApi.Domain;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -55,6 +56,18 @@ namespace CoolWebApi.Apis.V1.Controllers
         public IActionResult Post([FromBody] DummyModel model)
         {
             return Ok();
+        }
+
+        [HttpGet("throw-error")]
+        public IActionResult ThrowError()
+        {
+            throw new InvalidOperationException("The exception was intentionally thrown");
+        }
+
+        [HttpGet("throw-domain-exception")]
+        public IActionResult ThrowDomainError()
+        {
+            throw new DomainException("Product could not be found");
         }
     }
 
