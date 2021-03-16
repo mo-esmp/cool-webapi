@@ -2,6 +2,7 @@ using CoolWebApi.Infrastructure.Middlewares;
 using CoolWebApi.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +14,7 @@ using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 
@@ -30,7 +32,16 @@ namespace CoolWebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
+            services.AddControllers().AddDataAnnotationsLocalization();
+            services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+            var supportedCultures = new List<CultureInfo> { new CultureInfo("en"), new CultureInfo("fa") };
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.DefaultRequestCulture = new RequestCulture("fa");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
 
             services.Configure<RouteOptions>(options => { options.LowercaseUrls = true; });
 
@@ -56,6 +67,7 @@ namespace CoolWebApi
             {
                 // add a custom operation filter which sets default values
                 options.OperationFilter<SwaggerDefaultValues>();
+                options.OperationFilter<SwaggerLanguageHeader>();
 
                 // JWT Bearer Authorization
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -66,7 +78,7 @@ namespace CoolWebApi
                     Type = SecuritySchemeType.ApiKey
                 });
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
+                            {
                     {
                         new OpenApiSecurityScheme
                         {
@@ -81,7 +93,7 @@ namespace CoolWebApi
                         },
                         new List<string>()
                     }
-                });
+                            });
 
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -106,6 +118,8 @@ namespace CoolWebApi
             }
 
             app.UseApiExceptionHandling();
+
+            app.UseRequestLocalization();
 
             app.UseSerilogRequestLogging();
 
