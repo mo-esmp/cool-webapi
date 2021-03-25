@@ -1,5 +1,4 @@
 ﻿using CoolWebApi.Domain;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -68,11 +67,5 @@ namespace CoolWebApi.Infrastructure.Middlewares
             context.Response.ContentType = "application/json";
             await context.Response.WriteAsync(result);
         }
-    }
-
-    public static class MiddlewareExtensions
-    {
-        public static IApplicationBuilder UseApiExceptionHandling(this IApplicationBuilder app)
-            => app.UseMiddleware<ApiExceptionHandlingMiddleware>();
     }
 }

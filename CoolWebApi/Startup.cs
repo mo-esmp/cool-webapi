@@ -1,4 +1,5 @@
-using CoolWebApi.Infrastructure.Middlewares;
+using CoolWebApi.Extensions;
+using CoolWebApi.Infrastructure.HttpClients;
 using CoolWebApi.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -10,12 +11,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Polly;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Net.Http;
 using System.Reflection;
 
 namespace CoolWebApi
@@ -35,7 +38,7 @@ namespace CoolWebApi
             services.AddControllers().AddDataAnnotationsLocalization();
             services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            var supportedCultures = new List<CultureInfo> { new CultureInfo("en"), new CultureInfo("fa") };
+            var supportedCultures = new List<CultureInfo> { new("en"), new("fa") };
             services.Configure<RequestLocalizationOptions>(options =>
             {
                 options.DefaultRequestCulture = new RequestCulture("fa");
@@ -99,6 +102,23 @@ namespace CoolWebApi
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
             });
+
+            var weatherSettings = new WeatherSettings();
+            Configuration.GetSection("WeatherSettings").Bind(weatherSettings);
+            services.AddSingleton(weatherSettings);
+
+            var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(10);
+
+            services.AddHttpClient<IWeatherHttpClient, WeatherHttpClient>()
+                .AddTransientHttpErrorPolicy(policy => policy.WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(2)))
+                .AddTransientHttpErrorPolicy(policy => policy.CircuitBreakerAsync(6, TimeSpan.FromSeconds(5)))
+                .AddPolicyHandler(request =>
+                {
+                    if (request.Method == HttpMethod.Get)
+                        return timeoutPolicy;
+
+                    return Policy.NoOpAsync<HttpResponseMessage>();
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

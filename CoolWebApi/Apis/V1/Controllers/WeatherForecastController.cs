@@ -1,12 +1,13 @@
 ﻿using CoolWebApi.Domain;
+using CoolWebApi.Infrastructure.HttpClients;
 using CoolWebApi.Resources;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
 namespace CoolWebApi.Apis.V1.Controllers
 {
@@ -15,23 +16,20 @@ namespace CoolWebApi.Apis.V1.Controllers
     [Route("api/v{version:apiVersion}/[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
+        private readonly IWeatherHttpClient _weatherClient;
+
+        public WeatherForecastController(IWeatherHttpClient weatherClient)
         {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+            _weatherClient = weatherClient;
+        }
 
         /// <summary>
         /// This API returns list of weather forecast.
         /// </summary>
         /// <remarks>
-        /// Possible values could be:
+        /// Default city is London
         ///
-        ///     "Freezing", "Bracing", "Chilly", "Cool", "Mild",
-        ///     "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        ///
-        /// Just for demonstration
-        ///
-        ///     GET api/v1/WeatherForecast
+        ///     GET api/v1/WeatherForecast?city=YourCity
         ///     {
         ///     }
         ///     curl -X GET "https://server-url/api/v1/WeatherForecast" -H  "accept: text/plain"
@@ -42,16 +40,9 @@ namespace CoolWebApi.Apis.V1.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public IEnumerable<WeatherForecast> Get()
+        public async Task<IEnumerable<WeatherForecast>> Get(string city = "London")
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+            return await _weatherClient.GetForecastsAsync(city);
         }
 
         [HttpPost]
