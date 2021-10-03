@@ -1,12 +1,10 @@
 ﻿using CoolWebApi.Domain;
 using CoolWebApi.Infrastructure.HttpClients;
-using CoolWebApi.Resources;
+using CoolWebApi.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace CoolWebApi.Apis.V1.Controllers
@@ -29,11 +27,8 @@ namespace CoolWebApi.Apis.V1.Controllers
         /// <remarks>
         /// Default city is London
         ///
-        ///     GET api/v1/WeatherForecast?city=YourCity
-        ///     {
-        ///     }
-        ///     curl -X GET "https://server-url/api/v1/WeatherForecast" -H  "accept: text/plain"
-        ///
+        /// GET api/v1/WeatherForecast?city=YourCity { } curl -X GET
+        /// "https://server-url/api/v1/WeatherForecast" -H "accept: text/plain"
         /// </remarks>
         /// <response code="200">Returns list of weather forecast</response>
         /// <response code="400">Noway, just for demonstration</response>
@@ -60,35 +55,7 @@ namespace CoolWebApi.Apis.V1.Controllers
         [HttpGet("throw-domain-exception")]
         public IActionResult ThrowDomainError()
         {
-            throw new DomainException("Product could not be found");
-        }
-    }
-
-    public class DummyModel : IValidatableObject
-    {
-        [Display(ResourceType = typeof(DisplayNameResource), Name = "FirstName")]
-        [Required(ErrorMessageResourceType = typeof(ErrorMessageResource), ErrorMessageResourceName = "RequiredError")]
-        [StringLength(32, MinimumLength = 3, ErrorMessageResourceType = typeof(ErrorMessageResource), ErrorMessageResourceName = "StringLengthError")]
-        public string FirstName { get; set; }
-
-        [Display(ResourceType = typeof(DisplayNameResource), Name = "FirstName")]
-        [Required(ErrorMessageResourceType = typeof(ErrorMessageResource), ErrorMessageResourceName = "RequiredError")]
-        [MaxLength(32, ErrorMessageResourceType = typeof(ErrorMessageResource), ErrorMessageResourceName = "MaxLengthError")]
-        public string LastName { get; set; }
-
-        [Display(ResourceType = typeof(DisplayNameResource), Name = "Email")]
-        [Required(ErrorMessageResourceType = typeof(ErrorMessageResource), ErrorMessageResourceName = "RequiredError")]
-        [MaxLength(128, ErrorMessageResourceType = typeof(ErrorMessageResource), ErrorMessageResourceName = "MaxLengthError")]
-        public string Email { get; set; }
-
-        [JsonIgnore]
-        public string FullName { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (Email.Contains("dummy"))
-                yield return new ValidationResult(string.Format(
-                    ErrorMessageResource.DummyIsForbidenError, DisplayNameResource.Email));
+            throw new DomainException("The user mobile number is not verified.", code: "120");
         }
     }
 }

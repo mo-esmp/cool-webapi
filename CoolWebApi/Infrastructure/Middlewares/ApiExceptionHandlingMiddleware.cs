@@ -1,4 +1,5 @@
 ﻿using CoolWebApi.Domain;
+using CoolWebApi.Infrastructure.ProblemDetail;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -37,9 +38,9 @@ namespace CoolWebApi.Infrastructure.Middlewares
         {
             string result;
 
-            if (ex is DomainException)
+            if (ex is DomainException e)
             {
-                var problemDetails = new ValidationProblemDetails(new Dictionary<string, string[]> { { "Error", new[] { ex.Message } } })
+                var problemDetails = new CustomValidationProblemDetails(new List<ValidationError> { new() { Code = e.Code, Message = e.Message } })
                 {
                     Type = "https://tools.ietf.org/html/rfc7231#section-6.5.1",
                     Title = "One or more validation errors occurred.",
