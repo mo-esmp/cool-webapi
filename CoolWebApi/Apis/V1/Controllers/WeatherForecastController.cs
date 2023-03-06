@@ -1,11 +1,6 @@
 ﻿using CoolWebApi.Domain;
 using CoolWebApi.Infrastructure.HttpClients;
 using CoolWebApi.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace CoolWebApi.Apis.V1.Controllers
 {
@@ -22,13 +17,13 @@ namespace CoolWebApi.Apis.V1.Controllers
         }
 
         /// <summary>
-        /// This API returns list of weather forecast.
+        ///   This API returns list of weather forecast.
         /// </summary>
         /// <remarks>
-        /// Default city is London
+        ///   Default city is London
         ///
-        /// GET api/v1/WeatherForecast?city=YourCity { } curl -X GET
-        /// "https://server-url/api/v1/WeatherForecast" -H "accept: text/plain"
+        ///   GET api/v1/WeatherForecast?city=YourCity { } curl -X GET
+        ///   "https://server-url/api/v1/WeatherForecast" -H "accept: text/plain"
         /// </remarks>
         /// <response code="200">Returns list of weather forecast</response>
         /// <response code="400">Noway, just for demonstration</response>

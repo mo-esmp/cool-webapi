@@ -1,0 +1,10 @@
+﻿global using Asp.Versioning;
+global using CoolWebApi.Extensions;
+global using CoolWebApi.Resources;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Routing;
+global using Microsoft.Extensions.DependencyInjection;
+global using System;
+global using System.Collections.Generic;
+global using System.Threading.Tasks;

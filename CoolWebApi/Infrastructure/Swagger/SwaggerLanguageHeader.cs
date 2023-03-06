@@ -7,35 +7,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CoolWebApi.Infrastructure.Swagger
+namespace CoolWebApi.Infrastructure.Swagger;
+
+public class SwaggerLanguageHeader : IOperationFilter
 {
-    public class SwaggerLanguageHeader : IOperationFilter
+    private readonly IServiceProvider _serviceProvider;
+
+    public SwaggerLanguageHeader(IServiceProvider serviceProvider)
     {
-        private readonly IServiceProvider _serviceProvider;
+        _serviceProvider = serviceProvider;
+    }
 
-        public SwaggerLanguageHeader(IServiceProvider serviceProvider)
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        operation.Parameters ??= new List<OpenApiParameter>();
+
+        operation.Parameters.Add(new OpenApiParameter
         {
-            _serviceProvider = serviceProvider;
-        }
-
-        public void Apply(OpenApiOperation operation, OperationFilterContext context)
-        {
-            operation.Parameters ??= new List<OpenApiParameter>();
-
-            operation.Parameters.Add(new OpenApiParameter
+            Name = "Accept-Language",
+            Description = "Supported languages",
+            In = ParameterLocation.Header,
+            Required = false,
+            Schema = new OpenApiSchema
             {
-                Name = "Accept-Language",
-                Description = "Supported languages",
-                In = ParameterLocation.Header,
-                Required = false,
-                Schema = new OpenApiSchema
-                {
-                    Type = "string",
-                    Enum = (_serviceProvider.GetService(typeof(IOptions<RequestLocalizationOptions>)) as IOptions<RequestLocalizationOptions>)?
-                        .Value?
-                        .SupportedCultures?.Select(c => new OpenApiString(c.TwoLetterISOLanguageName)).ToList<IOpenApiAny>(),
-                }
-            });
-        }
+                Type = "string",
+                Enum = (_serviceProvider.GetService(typeof(IOptions<RequestLocalizationOptions>)) as IOptions<RequestLocalizationOptions>)?
+                    .Value?
+                    .SupportedCultures?.Select(c => new OpenApiString(c.TwoLetterISOLanguageName)).ToList<IOpenApiAny>(),
+            }
+        });
     }
 }
